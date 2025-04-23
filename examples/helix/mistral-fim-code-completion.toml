@@ -1,0 +1,33 @@
+##############################
+## Configuration for lsp-code-client ##
+##############################
+
+[language-server.lsp-code-client]
+command = "lsp-code-client"
+
+[language-server.lsp-code-client.config.memory]
+file_store = { }
+
+[language-server.lsp-code-client.config.models.model1]
+type = "mistral_fim"
+fim_endpoint = "https://api.mistral.ai/v1/fim/completions"
+model = "codestral-latest"
+auth_token_env_var_name = "MISTRAL_API_KEY"
+
+[language-server.lsp-code-client.config.completion]
+model = "model1"
+
+[language-server.lsp-code-client.config.completion.parameters]
+max_tokens = 64
+max_context = 1024
+
+
+#################################
+## Configuration for languages ##
+#################################
+
+[[language]]
+name = "python"
+language-servers = ["pyright", "lsp-code-client"]
+
+## Configure other languages here

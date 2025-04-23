@@ -1,0 +1,8 @@
+/target
+/models
+node_modules
+out
+dist
+lsp-code-client.log
+.vsix
+lsp-code-client-chat.md

@@ -1,0 +1,67 @@
+{
+  "name": "lsp-code-client",
+  "version": "0.1.0",
+  "displayName": "lsp-code-client",
+  "publisher": "SilasMarvin",
+  "description": "The official VS Code plugin for lsp-code-client. lsp-code-client is an open-source language server that serves as a backend for AI-powered functionality, designed to assist and empower software engineers, not replace them.",
+  "icon": "logo-white-black-background-1024x1024.png",
+  "repository": "https://github.com/Gerome-Elassaad/lsp-code-client",
+  "main": "/dist/index.js",
+  "scripts": {
+    "vscode:prepublish": "npm run esbuild-base -- --minify",
+    "esbuild-base": "esbuild ./src/index.ts --bundle --outfile=dist/index.js --external:vscode --format=cjs --platform=node",
+    "esbuild": "npm run esbuild-base -- --sourcemap",
+    "esbuild-watch": "npm run esbuild-base -- --sourcemap --watch",
+    "test-compile": "tsc -p ./"
+  },
+  "author": "",
+  "license": "MIT",
+  "activationEvents": [
+    "onLanguage"
+  ],
+  "engines": {
+    "vscode": "^1.75.0"
+  },
+  "contributes": {
+    "commands": [
+      {
+        "command": "lsp-code-client.generation",
+        "title": "lsp-code-client Generation"
+      }
+    ],
+    "configuration": {
+      "title": "lsp-code-client",
+      "properties": {
+        "lsp-code-client.serverConfiguration": {
+          "type": "object",
+          "default": {},
+          "description": "JSON configuration for lsp-code-client language server"
+        },
+        "lsp-code-client.generationConfiguration": {
+          "type": "object",
+          "default": {},
+          "description": "JSON configuration for lsp-code-client generation"
+        },
+        "lsp-code-client.inlineCompletionConfiguration": {
+          "type": "object",
+          "default": {
+            "maxCompletionsPerSecond": 1
+          },
+          "description": "JSON configuration for lsp-code-client generation"
+        }
+      }
+    }
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.0",
+    "@types/uuid": "^9.0.8",
+    "@vscode/vsce": "^2.26.1",
+    "esbuild": "^0.21.4",
+    "typescript": "^5.3.3"
+  },
+  "dependencies": {
+    "@types/vscode": "^1.85.0",
+    "uuid": "^9.0.1",
+    "vscode-languageclient": "^9.0.1"
+  }
+}

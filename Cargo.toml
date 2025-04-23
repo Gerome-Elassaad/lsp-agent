@@ -1,0 +1,20 @@
+[workspace]
+members = ["crates/*", "xtask/"]
+resolver = "2"
+
+[workspace.package]
+edition = "2021"
+license = "MIT"
+description = "lsp-code-client is an open-source language server that serves as a backend for AI-powered functionality, designed to assist and empower software engineers, not replace them."
+repository = "https://github.com/Gerome-Elassaad/lsp-code-client"
+readme = "README.md"
+authors = ["Silas Marvin <silas.marvin@dmarvin.net>"]
+
+[profile.dev.package]
+# This speeds up `cargo xtask dist`.
+miniz_oxide.opt-level = 3
+
+[profile.release]
+incremental = true
+# Set this to 1 or 2 to get more useful backtraces in debugger.
+debug = 0

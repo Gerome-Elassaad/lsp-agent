@@ -1,0 +1,38 @@
+##############################
+## Configuration for lsp-code-client ##
+##############################
+
+[language-server.lsp-code-client]
+command = "lsp-code-client"
+
+[language-server.lsp-code-client.config.memory]
+file_store = { }
+
+[language-server.lsp-code-client.config.models.model1]
+type = "llama_cpp"
+repository = "stabilityai/stable-code-3b"
+name = "stable-code-3b-Q5_K_M.gguf"
+n_ctx = 2048
+
+[language-server.lsp-code-client.config.completion]
+model = "model1"
+
+[language-server.lsp-code-client.config.completion.parameters]
+max_tokens = 32
+max_context = 1024
+
+[language-server.lsp-code-client.config.completion.parameters.fim]
+start = "<fim_prefix>"
+middle = "<fim_suffix>"
+end = "<fim_middle>"
+
+
+#################################
+## Configuration for languages ##
+#################################
+
+[[language]]
+name = "python"
+language-servers = ["pyright", "lsp-code-client"]
+
+## Configure other languages here
