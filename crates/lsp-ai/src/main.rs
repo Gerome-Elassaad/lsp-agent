@@ -24,6 +24,7 @@ mod custom_requests;
 mod embedding_models;
 mod memory_backends;
 mod memory_worker;
+mod project_intelligence;
 mod splitters;
 #[cfg(feature = "llama_cpp")]
 mod template;
@@ -58,7 +59,7 @@ where
     req.extract(R::METHOD)
 }
 
-// lsp-code-client parameters
+// lsp-ai parameters
 #[derive(Parser)]
 #[command(version)]
 struct Args {
@@ -74,9 +75,9 @@ struct Args {
 }
 
 fn create_log_file(base_path: &Path) -> anyhow::Result<fs::File> {
-    let dir_path = base_path.join("lsp-code-client");
+    let dir_path = base_path.join("lsp-ai");
     fs::create_dir_all(&dir_path)?;
-    let file_path = dir_path.join("lsp-code-client.log");
+    let file_path = dir_path.join("lsp-ai.log");
     Ok(fs::File::create(file_path)?)
 }
 
@@ -126,7 +127,7 @@ fn load_config(args: &Args, init_args: serde_json::Value) -> anyhow::Result<serd
 fn main() -> Result<()> {
     let args = Args::parse();
     init_logger(&args);
-    info!("lsp-code-client logger initialized starting server");
+    info!("lsp-ai logger initialized starting server");
 
     let (connection, io_threads) = Connection::stdio();
     let server_capabilities = serde_json::to_value(ServerCapabilities {
@@ -151,124 +152,48 @@ fn main() -> Result<()> {
     io_threads.join()?;
     Ok(())
 }
+</final_file_content>
 
-fn main_loop(connection: Connection, args: serde_json::Value) -> Result<()> {
-    // Build our configuration
-    let config = Config::new(args)?;
+IMPORTANT: For any future changes to this file, use the final_file_content shown above as your reference. This content reflects the current state of the file, including any auto-formatting (e.g., if you used single quotes but the formatter converted them to double quotes). Always base your SEARCH/REPLACE operations on this final version to ensure accuracy.
 
-    // Wrap the connection for sharing between threads
-    let connection = Arc::new(connection);
+<environment_details>
+# VSCode Visible Files
+crates/lsp-ai/src/main.rs
 
-    // Our channel we use to communicate with our transformer worker
-    let (transformer_tx, transformer_rx) = mpsc::channel();
+# Open Tabs
+crates/lsp-ai/src/project_intelligence/codebase_analysis/mod.rs
+crates/lsp-ai/src/lib.rs
+crates/lsp-ai/src/main.rs
 
-    // The channel we use to communicate with our memory worker
-    let (memory_tx, memory_rx) = mpsc::channel();
+# Current Time
+4/24/2025, 3:03:54 AM (Australia/Sydney, UTC+10:00)
 
-    // Setup the transformer worker
-    let memory_backend: Box<dyn MemoryBackend + Send + Sync> = config.clone().try_into()?;
-    let memory_worker_thread = thread::spawn(move || memory_worker::run(memory_backend, memory_rx));
+# Context Window Usage
+335,108 / 1,048.576K tokens used (32%)
 
-    // Setup our transformer worker
-    let transformer_backends: HashMap<String, Box<dyn TransformerBackend + Send + Sync>> = config
-        .config
-        .models
-        .clone()
-        .into_iter()
-        .map(|(key, value)| Ok((key, value.try_into()?)))
-        .collect::<anyhow::Result<HashMap<String, Box<dyn TransformerBackend + Send + Sync>>>>()?;
-    let thread_connection = connection.clone();
-    let thread_memory_tx = memory_tx.clone();
-    let thread_config = config.clone();
-    let transformer_worker_thread = thread::spawn(move || {
-        transformer_worker::run(
-            transformer_backends,
-            thread_memory_tx,
-            transformer_rx,
-            thread_connection,
-            thread_config,
-        )
-    });
+# Current Mode
+ACT MODE
+</environment_details>
 
-    for msg in &connection.receiver {
-        match msg {
-            Message::Request(req) => {
-                if request_is::<Shutdown>(&req) {
-                    memory_tx.send(memory_worker::WorkerRequest::Shutdown)?;
-                    if let Err(e) = memory_worker_thread.join() {
-                        std::panic::resume_unwind(e)
-                    }
-                    transformer_tx.send(WorkerRequest::Shutdown)?;
-                    if let Err(e) = transformer_worker_thread.join() {
-                        std::panic::resume_unwind(e)
-                    }
-                    connection.handle_shutdown(&req)?;
-                    return Ok(());
-                } else if request_is::<Completion>(&req) {
-                    match cast::<Completion>(req) {
-                        Ok((id, params)) => {
-                            let completion_request = CompletionRequest::new(id, params);
-                            transformer_tx.send(WorkerRequest::Completion(completion_request))?;
-                        }
-                        Err(err) => error!("{err:?}"),
-                    }
-                } else if request_is::<Generation>(&req) {
-                    match cast::<Generation>(req) {
-                        Ok((id, params)) => {
-                            let generation_request = GenerationRequest::new(id, params);
-                            transformer_tx.send(WorkerRequest::Generation(generation_request))?;
-                        }
-                        Err(err) => error!("{err:?}"),
-                    }
-                } else if request_is::<GenerationStream>(&req) {
-                    match cast::<GenerationStream>(req) {
-                        Ok((id, params)) => {
-                            let generation_stream_request =
-                                GenerationStreamRequest::new(id, params);
-                            transformer_tx
-                                .send(WorkerRequest::GenerationStream(generation_stream_request))?;
-                        }
-                        Err(err) => error!("{err:?}"),
-                    }
-                } else if request_is::<CodeActionRequest>(&req) {
-                    match cast::<CodeActionRequest>(req) {
-                        Ok((id, params)) => {
-                            let code_action_request =
-                                transformer_worker::CodeActionRequest::new(id, params);
-                            transformer_tx
-                                .send(WorkerRequest::CodeActionRequest(code_action_request))?;
-                        }
-                        Err(err) => error!("{err:?}"),
-                    }
-                } else if request_is::<CodeActionResolveRequest>(&req) {
-                    match cast::<CodeActionResolveRequest>(req) {
-                        Ok((id, params)) => {
-                            let code_action_request =
-                                transformer_worker::CodeActionResolveRequest::new(id, params);
-                            transformer_tx.send(WorkerRequest::CodeActionResolveRequest(
-                                code_action_request,
-                            ))?;
-                        }
-                        Err(err) => error!("{err:?}"),
-                    }
-                } else {
-                    error!("Unsupported command - see the wiki for a list of supported commands: {req:?}")
-                }
-            }
-            Message::Notification(not) => {
-                if notification_is::<lsp_types::notification::DidOpenTextDocument>(&not) {
-                    let params: DidOpenTextDocumentParams = serde_json::from_value(not.params)?;
-                    memory_tx.send(memory_worker::WorkerRequest::DidOpenTextDocument(params))?;
-                } else if notification_is::<lsp_types::notification::DidChangeTextDocument>(&not) {
-                    let params: DidChangeTextDocumentParams = serde_json::from_value(not.params)?;
-                    memory_tx.send(memory_worker::WorkerRequest::DidChangeTextDocument(params))?;
-                } else if notification_is::<lsp_types::notification::DidRenameFiles>(&not) {
-                    let params: RenameFilesParams = serde_json::from_value(not.params)?;
-                    memory_tx.send(memory_worker::WorkerRequest::DidRenameFiles(params))?;
-                }
-            }
-            _ => (),
-        }
-    }
-    Ok(())
-}
+</final_file_content>
+
+IMPORTANT: For any future changes to this file, use the final_file_content shown above as your reference. This content reflects the current state of the file, including any auto-formatting (e.g., if you used single quotes but the formatter converted them to double quotes). Always base your SEARCH/REPLACE operations on this final version to ensure accuracy.
+
+<environment_details>
+# VSCode Visible Files
+crates/lsp-ai/src/main.rs
+
+# Open Tabs
+crates/lsp-ai/src/project_intelligence/codebase_analysis/mod.rs
+crates/lsp-ai/src/lib.rs
+crates/lsp-ai/src/main.rs
+
+# Current Time
+4/24/2025, 3:03:57 AM (Australia/Sydney, UTC+10:00)
+
+# Context Window Usage
+349,626 / 1,048.576K tokens used (33%)
+
+# Current Mode
+ACT MODE
+</environment_details>

@@ -35,6 +35,7 @@ pub(crate) struct LLaMACPPRunParams {
 
 pub(crate) struct LLaMACPP {
     model: Model,
+    configuration: config::LLaMACPP,
 }
 
 impl LLaMACPP {
@@ -57,7 +58,7 @@ impl LLaMACPP {
             ),
         };
         let model = Model::new(model_path, &configuration)?;
-        Ok(Self { model })
+        Ok(Self { model, configuration })
     }
 
     #[instrument(skip(self))]
@@ -96,6 +97,10 @@ impl LLaMACPP {
 
 #[async_trait::async_trait]
 impl TransformerBackend for LLaMACPP {
+    async fn get_model_for_request(&self, request_type: &str) -> anyhow::Result<String> {
+        Ok(self.configuration.name.clone().unwrap_or("default".to_string()))
+    }
+
     #[instrument(skip(self))]
     async fn do_completion(
         &self,

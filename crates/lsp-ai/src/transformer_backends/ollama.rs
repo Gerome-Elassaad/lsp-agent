@@ -72,8 +72,36 @@ impl Ollama {
     pub(crate) fn new(configuration: config::Ollama) -> Self {
         Self { configuration }
     }
+}
 
-    async fn get_completion(
+#[async_trait::async_trait]
+impl TransformerBackend for Ollama {
+    async fn get_model_for_request(&self, request_type: &str) -> anyhow::Result<String> {
+        Ok(self.configuration.model.clone())
+    }
+
+    #[instrument(skip(self))]
+    async fn do_generate(
+        &self,
+        prompt: &Prompt,
+        params: Value,
+    ) -> anyhow::Result<DoGenerationResponse> {
+        let params: OllamaRunParams = serde_json::from_value(params)?;
+        let generated_text = self.do_chat_completion(prompt, params).await?;
+        Ok(DoGenerationResponse { generated_text })
+    }
+
+    #[instrument(skip(self))]
+    async fn do_generate_stream(
+        &self,
+        request: &GenerationStreamRequest,
+        _params: Value,
+    ) -> anyhow::Result<DoGenerationStreamResponse> {
+        anyhow::bail!("GenerationStream is not yet implemented")
+    }
+}
+
+async fn get_completion(
         &self,
         prompt: &str,
         params: OllamaRunParams,

@@ -45,7 +45,7 @@ fn dist_server(sh: &Shell, release: &str, target: &Target) -> anyhow::Result<()>
     }
 
     let target_name = &target.name;
-    cmd!(sh, "cargo build --manifest-path ./crates/lsp-code-client/Cargo.toml --bin lsp-code-client --target {target_name} --release").run()?;
+    cmd!(sh, "cargo build --manifest-path ./crates/lsp-ai/Cargo.toml --bin lsp-ai --target {target_name} --release").run()?;
 
     let dst = Path::new("dist").join(&target.artifact_name);
     gzip(&target.server_path, &dst.with_extension("gz"))?;
@@ -135,8 +135,8 @@ impl Target {
         } else {
             (String::new(), None)
         };
-        let server_path = out_path.join(format!("lsp-code-client{exe_suffix}"));
-        let artifact_name = format!("lsp-code-client-{name}{exe_suffix}");
+        let server_path = out_path.join(format!("lsp-ai{exe_suffix}"));
+        let artifact_name = format!("lsp-ai-{name}{exe_suffix}");
         Self {
             name,
             server_path,

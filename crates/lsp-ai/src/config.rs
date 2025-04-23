@@ -323,6 +323,7 @@ pub(crate) struct Gemini {
 pub(crate) struct Anthropic {
     // The auth token env var name
     pub(crate) auth_token_env_var_name: Option<String>,
+    // The auth token
     pub(crate) auth_token: Option<String>,
     // The completions endpoint
     #[allow(dead_code)]
@@ -377,6 +378,18 @@ pub(crate) struct Action {
 
 #[derive(Clone, Debug, Deserialize)]
 #[serde(deny_unknown_fields)]
+pub(crate) struct ModelSelectionConfig {
+    pub(crate) default_model: String,
+    #[serde(default)]
+    pub(crate) request_type_model: HashMap<String, String>,
+    #[serde(default)]
+    pub(crate) language_model: HashMap<String, String>,
+    #[serde(default)]
+    pub(crate) file_type_model: HashMap<String, String>,
+}
+
+#[derive(Clone, Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub(crate) struct ValidConfig {
     pub(crate) memory: ValidMemoryBackend,
     pub(crate) models: HashMap<String, ValidModel>,
@@ -386,6 +399,8 @@ pub(crate) struct ValidConfig {
     #[serde(default)]
     #[serde(alias = "chat")] // Legacy from when it was called chat, remove soon
     pub(crate) chats: Vec<Chat>,
+    #[serde(default)]
+    pub(crate) model_selection: ModelSelectionConfig,
 }
 
 #[derive(Clone, Debug, Deserialize, Default)]
@@ -409,7 +424,7 @@ impl Config {
             .remove("initializationOptions");
         let valid_args = match configuration_args {
             Some(configuration_args) => serde_json::from_value(configuration_args)?,
-            None => anyhow::bail!("lsp-code-client does not currently provide a default configuration. Please pass a configuration. See https://github.com/Gerome-Elassaad/lsp-code-client for configuration options and examples"),
+            None => anyhow::bail!("lsp-ai does not currently provide a default configuration. Please pass a configuration. See https://github.com/Gerome-Elassaad/lsp-ai for configuration options and examples"),
         };
         let client_params: ValidClientParams = serde_json::from_value(args)?;
         Ok(Self {
@@ -474,6 +489,12 @@ impl Config {
                 completion: None,
                 actions: vec![],
                 chats: vec![],
+                model_selection: ModelSelectionConfig {
+                    default_model: "default".to_string(),
+                    request_type_model: HashMap::new(),
+                    language_model: HashMap::new(),
+                    file_type_model: HashMap::new(),
+                },
             },
             client_params: ValidClientParams { root_uri: None },
         }
@@ -487,6 +508,12 @@ impl Config {
                 completion: None,
                 actions: vec![],
                 chats: vec![],
+                model_selection: ModelSelectionConfig {
+                    default_model: "default".to_string(),
+                    request_type_model: HashMap::new(),
+                    language_model: HashMap::new(),
+                    file_type_model: HashMap::new(),
+                },
             },
             client_params: ValidClientParams { root_uri: None },
         }
@@ -673,3 +700,34 @@ mod test {
         Config::new(args).unwrap();
     }
 }
+
+</final_file_content>
+
+IMPORTANT: For any future changes to this file, use the final_file_content shown above as your reference. This content reflects the current state of the file, including any auto-formatting (e.g., if you used single quotes but the formatter converted them to double quotes). Always base your SEARCH/REPLACE operations on this final version to ensure accuracy.
+
+<environment_details>
+# VSCode Visible Files
+crates/lsp-ai/src/config.rs
+
+# VSCode Open Tabs
+crates/lsp-ai/src/transformer_backends/mod.rs
+crates/lsp-ai/src/transformer_backends/ollama.rs
+crates/lsp-ai/src/transformer_backends/open_ai/mod.rs
+crates/lsp-ai/src/transformer_backends/gemini.rs
+crates/lsp-ai/src/transformer_backends/anthropic.rs
+crates/lsp-ai/src/transformer_backends/mistral_fim.rs
+crates/lsp-ai/src/transformer_backends/llama_cpp/mod.rs
+crates/lsp-ai/src/config.rs
+crates/lsp-ai/src/transformer_worker.rs
+
+# Current Time
+4/24/2025, 2:30:20 AM (Australia/Sydney, UTC+10:00)
+
+# Context Window Usage
+133,713 / 1,048.576K tokens used (13%)
+
+# Current Mode
+PLAN MODE
+In this mode you should focus on information gathering, asking questions, and architecting a solution. Once you have a plan, use the plan_mode_respond tool to engage in a conversational back and forth with the user. Do not use the plan_mode_respond tool until you've gathered all the information you need e.g. with read_file or ask_followup_question.
+(Remember: If it seems the user wants you to use tools only available in Act Mode, you should ask the user to "toggle to Act mode" (use those words) - they will have to manually do this themselves with the Plan/Act toggle button below. You do not have the ability to switch to Act Mode yourself, and must wait for the user to do it themselves once they are satisfied with the plan. You also cannot present an option to toggle to Act mode, as this will be something you need to direct the user to do manually themselves.)
+</environment_details>

@@ -1,7 +1,6 @@
 <div align="center">
    <picture>
-  <source media="(prefers-color-scheme: dark)" srcset="https://github.com/user-attachments/assets/7849b743-a3d5-4fde-8ac7-960205c1b019">
-  <source media="(prefers-color-scheme: light)" srcset="https://github.com/user-attachments/assets/7903b3c2-a5ac-47e0-ae23-bd6a47b864ee">
+  <source media="(prefers-color-scheme: dark)" srcset="https://www.qodo.ai/wp-content/uploads/2024/09/15-Best-AI-Coding-Assistant-Tools-in-2025-1.png">
   <img alt="Logo" src="" width="650em">
    </picture>
 </div>

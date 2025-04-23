@@ -119,28 +119,28 @@ const defaultGenerationConfiguration = {
 export function activate(context: vscode.ExtensionContext) {
   // Configure the server options
   const serverOptions: ServerOptions = {
-    command: "lsp-code-client",
+    command: "lsp-ai",
     transport: TransportKind.stdio,
   };
 
   // Set the serverConfiguration
   let serverConfiguration;
-  if (Object.keys(vscode.workspace.getConfiguration("lsp-code-client").serverConfiguration).length != 0) {
-    serverConfiguration = vscode.workspace.getConfiguration("lsp-code-client").serverConfiguration;
+  if (Object.keys(vscode.workspace.getConfiguration("lsp-ai").serverConfiguration).length != 0) {
+    serverConfiguration = vscode.workspace.getConfiguration("lsp-ai").serverConfiguration;
   } else {
     serverConfiguration = defaultServerConfiguration;
   }
 
   // Set the generationConfiguration
   let generationConfiguration;
-  if (Object.keys(vscode.workspace.getConfiguration("lsp-code-client").generationConfiguration).length != 0) {
-    generationConfiguration = vscode.workspace.getConfiguration("lsp-code-client").generationConfiguration;
+  if (Object.keys(vscode.workspace.getConfiguration("lsp-ai").generationConfiguration).length != 0) {
+    generationConfiguration = vscode.workspace.getConfiguration("lsp-ai").generationConfiguration;
   } else {
     generationConfiguration = defaultGenerationConfiguration;
   }
 
   // Set the inlineCompletionConfiguration
-  const inlineCompletionConfiguration = vscode.workspace.getConfiguration("lsp-code-client").inlineCompletionConfiguration;
+  const inlineCompletionConfiguration = vscode.workspace.getConfiguration("lsp-ai").inlineCompletionConfiguration;
 
   const clientOptions: LanguageClientOptions = {
     documentSelector: [{ scheme: "file" }],
@@ -149,8 +149,8 @@ export function activate(context: vscode.ExtensionContext) {
 
   // Create the language client and start the client
   client = new LanguageClient(
-    'lsp-code-client',
-    'lsp-code-client',
+    'lsp-ai',
+    'lsp-ai',
     serverOptions,
     clientOptions
   );
@@ -159,7 +159,7 @@ export function activate(context: vscode.ExtensionContext) {
   client.start();
 
   // Register generate function
-  const generateCommand = 'lsp-code-client.generation';
+  const generateCommand = 'lsp-ai.generation';
   const generateCommandHandler = (editor: vscode.TextEditor) => {
     let params = {
       textDocument: {

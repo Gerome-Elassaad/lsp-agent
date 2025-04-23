@@ -121,6 +121,10 @@ impl MistralFIM {
 
 #[async_trait::async_trait]
 impl TransformerBackend for MistralFIM {
+    async fn get_model_for_request(&self, request_type: &str) -> anyhow::Result<String> {
+        Ok(self.config.model.clone())
+    }
+
     #[instrument(skip(self))]
     async fn do_generate(
         &self,

@@ -3,6 +3,6 @@
 node_modules
 out
 dist
-lsp-code-client.log
+lsp-ai.log
 .vsix
-lsp-code-client-chat.md
+lsp-ai-chat.md

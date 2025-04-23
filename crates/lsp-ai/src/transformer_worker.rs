@@ -368,22 +368,39 @@ async fn generate_response(
     memory_backend_tx: std::sync::mpsc::Sender<memory_worker::WorkerRequest>,
     config: Config,
 ) -> anyhow::Result<Response> {
-    match request {
+    let model_name = match &request {
         WorkerRequest::Completion(request) => {
             let completion_config = config
                 .config
                 .completion
                 .as_ref()
                 .context("Completions is none")?;
-            let transformer_backend = transformer_backends
-                .get(&completion_config.model)
-                .with_context(|| format!("can't find model: {}", &completion_config.model))?;
+            config.config.model_selection.request_type_model.get("completion").unwrap_or(&completion_config.model).clone()
+        }
+        WorkerRequest::Generation(request) => {
+            config.config.model_selection.request_type_model.get("generation").unwrap_or(&request.params.model).clone()
+        }
+        WorkerRequest::GenerationStream(_) => {
+            anyhow::bail!("Streaming is not yet supported")
+        }
+        WorkerRequest::CodeActionRequest(_) => {
+            config.config.model_selection.request_type_model.get("code_action").unwrap_or(&config.config.completion.as_ref().context("Completions is none")?.model).clone()
+        }
+        WorkerRequest::CodeActionResolveRequest(_) => {
+            config.config.model_selection.request_type_model.get("code_action_resolve").unwrap_or(&config.config.completion.as_ref().context("Completions is none")?.model).clone()
+        }
+        WorkerRequest::Shutdown => unreachable!(),
+    };
+
+    let transformer_backend = transformer_backends
+        .get(&model_name)
+        .with_context(|| format!("can't find model: {}", &model_name))?;
+
+    match request {
+        WorkerRequest::Completion(request) => {
             do_completion(transformer_backend, memory_backend_tx, &request, &config).await
         }
         WorkerRequest::Generation(request) => {
-            let transformer_backend = transformer_backends
-                .get(&request.params.model)
-                .with_context(|| format!("can't find model: {}", &request.params.model))?;
             do_generate(transformer_backend, memory_backend_tx, &request).await
         }
         WorkerRequest::GenerationStream(_) => {
@@ -669,6 +686,12 @@ async fn do_code_action_resolve(
     request: &CodeActionResolveRequest,
     config: &Config,
 ) -> anyhow::Result<Response> {
+    let model_name = config.config.model_selection.request_type_model.get("code_action_resolve").unwrap_or(&config.config.completion.as_ref().context("Completions is none")?.model).clone();
+
+    let transformer_backend = transformer_backends
+        .get(&model_name)
+        .with_context(|| format!("can't find model: {}", &model_name))?;
+
     let action = if let Some(chat_action) = config
         .get_chats()
         .iter()
@@ -692,7 +715,7 @@ async fn do_code_action_resolve(
                     request.params.title
                 )
             })?;
-        do_code_action_action_resolve(action, transformer_backends, memory_backend_tx, request)
+        do_code_action_action_resolve(transformer_backend, memory_backend_tx, request, config)
             .await?
     };
     Ok(Response {

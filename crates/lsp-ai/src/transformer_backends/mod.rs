@@ -38,6 +38,10 @@ pub(crate) trait TransformerBackend {
         params: Value,
     ) -> anyhow::Result<DoGenerationResponse>;
 
+    async fn get_model_for_request(&self, request_type: &str) -> anyhow::Result<String> {
+        Ok("default".to_string())
+    }
+
     #[allow(dead_code)]
     async fn do_generate_stream(
         &self,

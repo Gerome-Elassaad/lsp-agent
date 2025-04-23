@@ -1,11 +1,11 @@
 {
-  "name": "lsp-code-client",
+  "name": "lsp-ai",
   "version": "0.1.0",
-  "displayName": "lsp-code-client",
-  "publisher": "SilasMarvin",
-  "description": "The official VS Code plugin for lsp-code-client. lsp-code-client is an open-source language server that serves as a backend for AI-powered functionality, designed to assist and empower software engineers, not replace them.",
+  "displayName": "lsp-ai",
+  "publisher": "Gerome Elassaad",
+  "description": "The official VS Code plugin for lsp-ai. lsp-ai is an open-source language server that serves as a backend for AI-powered functionality, designed to assist and empower software engineers, not replace them.",
   "icon": "logo-white-black-background-1024x1024.png",
-  "repository": "https://github.com/Gerome-Elassaad/lsp-code-client",
+  "repository": "https://github.com/Gerome-Elassaad/lsp-ai",
   "main": "/dist/index.js",
   "scripts": {
     "vscode:prepublish": "npm run esbuild-base -- --minify",
@@ -25,29 +25,29 @@
   "contributes": {
     "commands": [
       {
-        "command": "lsp-code-client.generation",
-        "title": "lsp-code-client Generation"
+        "command": "lsp-ai.generation",
+        "title": "lsp-ai Generation"
       }
     ],
     "configuration": {
-      "title": "lsp-code-client",
+      "title": "lsp-ai",
       "properties": {
-        "lsp-code-client.serverConfiguration": {
+        "lsp-ai.serverConfiguration": {
           "type": "object",
           "default": {},
-          "description": "JSON configuration for lsp-code-client language server"
+          "description": "JSON configuration for lsp-ai language server"
         },
-        "lsp-code-client.generationConfiguration": {
+        "lsp-ai.generationConfiguration": {
           "type": "object",
           "default": {},
-          "description": "JSON configuration for lsp-code-client generation"
+          "description": "JSON configuration for lsp-ai generation"
         },
-        "lsp-code-client.inlineCompletionConfiguration": {
+        "lsp-ai.inlineCompletionConfiguration": {
           "type": "object",
           "default": {
             "maxCompletionsPerSecond": 1
           },
-          "description": "JSON configuration for lsp-code-client generation"
+          "description": "JSON configuration for lsp-ai generation"
         }
       }
     }

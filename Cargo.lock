@@ -1565,7 +1565,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "lsp-code-client"
+name = "lsp-ai"
 version = "0.7.0"
 dependencies = [
  "anyhow",

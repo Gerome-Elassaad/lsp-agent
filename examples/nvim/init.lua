@@ -43,16 +43,16 @@ local lsp_ai_init_options_json = [[
 
 -- The configuration
 local lsp_ai_config = {
-  cmd = { 'lsp-code-client' },
+  cmd = { 'lsp-ai' },
   root_dir = vim.loop.cwd(),
   init_options = vim.fn.json_decode(lsp_ai_init_options_json),
 }
 
--- Start lsp-code-client when opening a buffer
+-- Start lsp-ai when opening a buffer
 vim.api.nvim_create_autocmd("BufEnter", {
   callback = function(args)
     local bufnr = args.buf
-    local client = vim.lsp.get_active_clients({bufnr = bufnr, name = "lsp-code-client"})
+    local client = vim.lsp.get_active_clients({bufnr = bufnr, name = "lsp-ai"})
     if #client == 0 then
       vim.lsp.start(lsp_ai_config, {bufnr = bufnr})
     end
