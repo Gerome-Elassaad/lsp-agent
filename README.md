@@ -1,10 +1,3 @@
-<div align="center">
-   <picture>
-  <source media="(prefers-color-scheme: dark)" srcset="https://www.qodo.ai/wp-content/uploads/2024/09/15-Best-AI-Coding-Assistant-Tools-in-2025-1.png">
-  <img alt="Logo" src="" width="650em">
-   </picture>
-</div>
-
 <p align="center">
    <p align="center"><b>Empowering not replacing programmers for procise & efficiant workflows.</b></p>
 </p>
